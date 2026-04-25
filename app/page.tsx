@@ -1,17 +1,18 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/lib/supabase";
 
 const CATEGORIES = [
-  { slug: "photography", label: "Photography", series: "01", count: 24, accent: "#c8b89a" },
-  { slug: "illustration", label: "Illustration", series: "02", count: 18, accent: "#7fb5a0" },
-  { slug: "motion", label: "Motion", series: "03", count: 9, accent: "#a08fc8" },
+  { slug: "photography", label: "Photography", series: "01", accent: "#c8b89a" },
+  { slug: "illustration", label: "Illustration", series: "02", accent: "#7fb5a0" },
+  { slug: "motion", label: "Motion", series: "03", accent: "#a08fc8" },
 ];
-
 export default function HomePage() {
   const router = useRouter();
   const cardsRef = useRef<(HTMLButtonElement | null)[]>([]);
+    const [counts, setCounts] = useState<Record<string, number>>({});
 
   useEffect(() => {
     cardsRef.current.forEach((el, i) => {
@@ -25,6 +26,25 @@ export default function HomePage() {
       }, 120 + i * 80);
     });
   }, []);
+
+
+useEffect(() => {
+  const fetchCounts = async () => {
+    const results = await Promise.all(
+      CATEGORIES.map(async (cat) => {
+        const { count } = await supabase
+          .from("works")
+          .select("*", { count: "exact", head: true })
+          .eq("category", cat.slug);
+        return { slug: cat.slug, count: count ?? 0 };
+      })
+    );
+    const map: Record<string, number> = {};
+    results.forEach((r) => (map[r.slug] = r.count));
+    setCounts(map);
+  };
+  fetchCounts();
+}, []);
 
   return (
 <main className="min-h-screen bg-[#f5f5f5] text-[#111] flex flex-col">
@@ -65,7 +85,7 @@ export default function HomePage() {
                 {cat.label}
               </p>
               <p className="text-[11px] text-gray-400 mt-1">
-                {cat.count} works
+                {counts[cat.slug] ?? 0} works
               </p>
               <div className="mt-6 flex justify-end">
                 <span className="text-gray-300 group-hover:text-[#0157ba] transition-all duration-300 text-2xl group-hover:translate-x-1 inline-block">
