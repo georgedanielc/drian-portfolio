@@ -6,7 +6,13 @@ import { supabase } from "@/lib/supabase";
 
 const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD!;
 
-const CATEGORIES = ["photography", "illustration", "motion"];
+const CATEGORY_MAP: Record<string, string[]> = {
+  branding: ["Logo Design", "Package Design", "Banner Design"],
+  illustration: ["Digital Illustration", "Pen & Ink", "Digital Drawing"],
+  "social-media": ["Social Media", "Pinterest Template", "Poster Design"],
+  photography: ["Photography"],
+  others: ["Others"],
+};
 
 function slugify(text: string) {
   return text
@@ -18,15 +24,14 @@ function slugify(text: string) {
 export default function AdminPage() {
   const router = useRouter();
 
-  // Auth state
   const [password, setPassword] = useState("");
   const [authed, setAuthed] = useState(false);
   const [authError, setAuthError] = useState("");
 
-  // Form state
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("photography");
+  const [category, setCategory] = useState("branding");
+  const [subcategory, setSubcategory] = useState(CATEGORY_MAP["branding"][0]);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [extraFiles, setExtraFiles] = useState<File[]>([]);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
@@ -43,6 +48,11 @@ export default function AdminPage() {
     }
   };
 
+  const handleCategoryChange = (val: string) => {
+    setCategory(val);
+    setSubcategory(CATEGORY_MAP[val][0]);
+  };
+
   const handleCoverChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -51,8 +61,7 @@ export default function AdminPage() {
   };
 
   const handleExtraChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files ?? []);
-    setExtraFiles(files);
+    setExtraFiles(Array.from(e.target.files ?? []));
   };
 
   const uploadFile = async (file: File, path: string): Promise<string> => {
@@ -67,10 +76,8 @@ export default function AdminPage() {
       setError("Title and category are required.");
       return;
     }
-
     setSaving(true);
     setError("");
-
     try {
       const slug = slugify(title) + "-" + Date.now();
 
@@ -89,6 +96,7 @@ export default function AdminPage() {
         title,
         description,
         category,
+        subcategory,
         cover_image: coverUrl,
         images: extraUrls,
         slug,
@@ -99,7 +107,8 @@ export default function AdminPage() {
       setSuccess(true);
       setTitle("");
       setDescription("");
-      setCategory("photography");
+      setCategory("branding");
+      setSubcategory(CATEGORY_MAP["branding"][0]);
       setCoverFile(null);
       setCoverPreview(null);
       setExtraFiles([]);
@@ -110,7 +119,6 @@ export default function AdminPage() {
     }
   };
 
-  // ── Password screen ──
   if (!authed) {
     return (
       <main className="min-h-screen bg-[#f5f5f5] flex items-center justify-center px-6">
@@ -137,19 +145,14 @@ export default function AdminPage() {
     );
   }
 
-  // ── Admin form ──
   return (
     <main className="min-h-screen bg-[#f5f5f5] text-[#111] flex flex-col">
 
       <nav className="relative flex items-center justify-center px-6 sm:px-10 py-4 sm:py-6 bg-white" style={{ boxShadow: "0 4px 20px rgba(0,0,0,0.1)" }}>
-        <span style={{ fontFamily: "var(--font-mono)", color: "#0157ba" }} className="text-lg sm:text-3xl tracking-wide font-medium">
+        <span style={{ fontFamily: "var(--font-mono)", color: "#111111" }} className="text-lg sm:text-3xl tracking-wide font-medium">
           Drian Clemence Esquejo
         </span>
-        <button
-          onClick={() => router.push("/")}
-          className="sm:absolute sm:right-10 text-[11px] tracking-[0.14em] uppercase transition-colors duration-200"
-          style={{ color: "#0157ba" }}
-        >
+        <button onClick={() => router.push("/")} className="sm:absolute sm:right-10 text-[11px] tracking-[0.14em] uppercase transition-colors duration-200" style={{ color: "#0157ba" }}>
           ← Home
         </button>
       </nav>
@@ -170,7 +173,7 @@ export default function AdminPage() {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Tite ni George Malaki"
+              placeholder="Ttie ni George Malaki"
               className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0157ba] transition-colors duration-200"
             />
           </div>
@@ -181,7 +184,7 @@ export default function AdminPage() {
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Short description mo tanga ka!"
+              placeholder="hi po, Short description mo...."
               rows={4}
               className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0157ba] transition-colors duration-200 resize-none"
             />
@@ -192,13 +195,27 @@ export default function AdminPage() {
             <label className="text-[11px] tracking-[0.14em] uppercase text-gray-400 mb-2 block">Category</label>
             <select
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => handleCategoryChange(e.target.value)}
               className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0157ba] transition-colors duration-200 bg-white"
             >
-              {CATEGORIES.map((cat) => (
+              {Object.keys(CATEGORY_MAP).map((cat) => (
                 <option key={cat} value={cat}>
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  {cat.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ")}
                 </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Subcategory */}
+          <div>
+            <label className="text-[11px] tracking-[0.14em] uppercase text-gray-400 mb-2 block">Subcategory</label>
+            <select
+              value={subcategory}
+              onChange={(e) => setSubcategory(e.target.value)}
+              className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0157ba] transition-colors duration-200 bg-white"
+            >
+              {CATEGORY_MAP[category].map((sub) => (
+                <option key={sub} value={sub}>{sub}</option>
               ))}
             </select>
           </div>
@@ -207,43 +224,38 @@ export default function AdminPage() {
           <div>
             <label className="text-[11px] tracking-[0.14em] uppercase text-gray-400 mb-2 block">Cover Image</label>
             <label className="flex items-center justify-center w-full h-32 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-[#0157ba] transition-colors duration-200 bg-gray-50">
-                <div className="flex flex-col items-center gap-2">
+              <div className="flex flex-col items-center gap-2">
                 <span className="text-2xl text-gray-300">↑</span>
                 <span className="text-[11px] tracking-[0.14em] uppercase text-gray-400">
-                    {coverFile ? coverFile.name : "Click to upload"}
+                  {coverFile ? coverFile.name : "Click to upload"}
                 </span>
-                </div>
-                <input type="file" accept="image/*" onChange={handleCoverChange} className="hidden" />
+              </div>
+              <input type="file" accept="image/*" onChange={handleCoverChange} className="hidden" />
             </label>
             {coverPreview && (
-                <img src={coverPreview} alt="Cover preview" className="mt-4 w-full h-48 object-cover rounded-lg border border-gray-100 shadow-sm" />
+              <img src={coverPreview} alt="Cover preview" className="mt-4 w-full h-48 object-cover rounded-lg border border-gray-100 shadow-sm" />
             )}
-            </div>
+          </div>
 
           {/* Additional images */}
           <div>
-  <label className="text-[11px] tracking-[0.14em] uppercase text-gray-400 mb-2 block">Additional Images</label>
-  <label className="flex items-center justify-center w-full h-24 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-[#0157ba] transition-colors duration-200 bg-gray-50">
-    <div className="flex flex-col items-center gap-2">
-      <span className="text-[11px] tracking-[0.14em] uppercase text-gray-400">
-        {extraFiles.length > 0 ? `${extraFiles.length} file(s) selected` : "Click to upload multiple"}
-      </span>
-    </div>
-    <input type="file" accept="image/*" multiple onChange={handleExtraChange} className="hidden" />
-  </label>
-</div>
+            <label className="text-[11px] tracking-[0.14em] uppercase text-gray-400 mb-2 block">Additional Images</label>
+            <label className="flex items-center justify-center w-full h-24 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-[#0157ba] transition-colors duration-200 bg-gray-50">
+              <span className="text-[11px] tracking-[0.14em] uppercase text-gray-400">
+                {extraFiles.length > 0 ? `${extraFiles.length} file(s) selected` : "Click to upload multiple"}
+              </span>
+              <input type="file" accept="image/*" multiple onChange={handleExtraChange} className="hidden" />
+            </label>
+          </div>
 
-          {/* Error */}
           {error && <p className="text-red-400 text-[11px]">{error}</p>}
 
-          {/* Success */}
           {success && (
             <div className="bg-green-50 border border-green-100 rounded-lg px-4 py-3">
               <p className="text-green-600 text-[11px] tracking-widest uppercase">Work uploaded successfully!</p>
             </div>
           )}
 
-          {/* Submit */}
           <button
             onClick={handleSubmit}
             disabled={saving}
