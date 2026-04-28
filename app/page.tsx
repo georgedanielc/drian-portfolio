@@ -91,7 +91,7 @@ fetchData();
   <span style={{ fontFamily: "var(--font-bricolage)", color: "white" }} className="text-2xl sm:text-5xl tracking-wide font-semibold text-center">
     Drian Esquejo
   </span>
-  <a href="mailto:georgedanielcavas@gmai.com" className="absolute right-10 flex items-center gap-2 transition-colors duration-200 hover:opacity-70" style={{ color: "white" }}>
+  <a href="mailto:georgedanielcavas@gmail.com?subject=Portfolio%20Inquiry" className="absolute right-10 flex items-center gap-2 transition-colors duration-200 hover:opacity-70" style={{ color: "white" }}>
     <Mail size={28} />
   </a>
 </nav>
