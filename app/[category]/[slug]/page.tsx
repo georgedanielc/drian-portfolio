@@ -141,6 +141,58 @@ export default function WorkDetailPage() {
           </div>
         )}
 
+        {/* Contact */}
+<div className="mt-16 bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+  <p className="text-[11px] tracking-[0.2em] uppercase text-gray-400 mb-2">Contact</p>
+  <h2 className="text-2xl font-semibold mb-1">Get in Touch</h2>
+  <p className="text-gray-400 text-sm mb-8">I'd love to hear from you! Send a message below.</p>
+
+  <div className="flex flex-col gap-4">
+    <div>
+      <label className="text-[11px] tracking-[0.14em] uppercase text-gray-400 mb-2 block">Name</label>
+      <input
+        type="text"
+        id="contact-name"
+        placeholder="Your name"
+        className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0157ba] transition-colors duration-200"
+      />
+    </div>
+    <div>
+      <label className="text-[11px] tracking-[0.14em] uppercase text-gray-400 mb-2 block">Email</label>
+      <input
+        type="email"
+        id="contact-email"
+        placeholder="your@email.com"
+        className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0157ba] transition-colors duration-200"
+      />
+    </div>
+    <div>
+      <label className="text-[11px] tracking-[0.14em] uppercase text-gray-400 mb-2 block">Message</label>
+      <textarea
+        id="contact-message"
+        placeholder="Tell me about your project..."
+        rows={4}
+        className="w-full border border-gray-200 rounded-lg px-4 py-3 text-sm outline-none focus:border-[#0157ba] transition-colors duration-200 resize-none"
+      />
+    </div>
+    <button
+      onClick={() => {
+        const name = (document.getElementById("contact-name") as HTMLInputElement).value;
+        const email = (document.getElementById("contact-email") as HTMLInputElement).value;
+        const message = (document.getElementById("contact-message") as HTMLTextAreaElement).value;
+        const subject = encodeURIComponent("Portfolio Inquiry");
+        const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`);
+        const gmail = `https://mail.google.com/mail/?view=cm&to=drian.esquejo@gmail.com&su=${subject}&body=${body}`;
+window.open(gmail, "_blank");
+      }}
+      className="w-full py-4 rounded-lg text-white text-[11px] tracking-[0.14em] uppercase transition-opacity duration-200 hover:opacity-80"
+      style={{ backgroundColor: "#0157ba" }}
+    >
+      Send Message
+    </button>
+  </div>
+</div>
+
         {/* Footer */}
         <footer className="mt-16 py-6 border-t border-gray-200 flex items-center justify-between">
           <p className="text-[11px] tracking-[0.1em] uppercase text-gray-400">&copy; 2025</p>

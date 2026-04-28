@@ -91,9 +91,13 @@ fetchData();
   <span style={{ fontFamily: "var(--font-bricolage)", color: "white" }} className="text-2xl sm:text-5xl tracking-wide font-semibold text-center">
     Drian Esquejo
   </span>
-  <a href="mailto:drian.esquejo@gmail.com?subject=Portfolio%20Inquiry" className="absolute right-10 flex items-center gap-2 transition-colors duration-200 hover:opacity-70" style={{ color: "white" }}>
-    <Mail size={28} />
-  </a>
+  <button
+  onClick={() => window.open("https://mail.google.com/mail/?view=cm&to=drian.esquejo@gmail.com&su=Portfolio%20Inquiry", "_blank")}
+  className="absolute right-10 flex items-center gap-2 transition-colors duration-200 hover:opacity-70"
+  style={{ color: "white" }}
+>
+  <Mail size={28} />
+</button>
 </nav>
 
       <div className="max-w-4xl mx-auto w-full flex flex-col flex-1 px-6 py-10">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import imageCompression from "browser-image-compression";
 
 const ADMIN_PASSWORD = process.env.NEXT_PUBLIC_ADMIN_PASSWORD!;
 
@@ -25,7 +26,10 @@ export default function AdminPage() {
   const router = useRouter();
 
   const [password, setPassword] = useState("");
-  const [authed, setAuthed] = useState(false);
+  const [authed, setAuthed] = useState(() => {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem("admin_authed") === "true";
+});
   const [authError, setAuthError] = useState("");
 
   const [title, setTitle] = useState("");
@@ -41,11 +45,17 @@ export default function AdminPage() {
 
   const handleLogin = () => {
     if (password === ADMIN_PASSWORD) {
+      localStorage.setItem("admin_authed", "true");
       setAuthed(true);
-      setAuthError("");
-    } else {
+    }else {
       setAuthError("Wrong password.");
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("admin_authed");
+    setAuthed(false);
+    router.replace("/admin");
   };
 
   const handleCategoryChange = (val: string) => {
@@ -63,6 +73,14 @@ export default function AdminPage() {
   const handleExtraChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setExtraFiles(Array.from(e.target.files ?? []));
   };
+
+  const compressImage = async (file: File): Promise<File> => {
+  return await imageCompression(file, {
+    maxSizeMB: 1,
+    maxWidthOrHeight: 1920,
+    useWebWorker: true,
+  });
+};
 
   const uploadFile = async (file: File, path: string): Promise<string> => {
     const { error } = await supabase.storage.from("works").upload(path, file, { upsert: true });
@@ -83,12 +101,14 @@ export default function AdminPage() {
 
       let coverUrl = "";
       if (coverFile) {
-        coverUrl = await uploadFile(coverFile, `${category}/${slug}/cover-${coverFile.name}`);
+        const compressed = await compressImage(coverFile);
+        coverUrl = await uploadFile(compressed, `${category}/${slug}/cover-${coverFile.name}`);
       }
 
       const extraUrls: string[] = [];
       for (const file of extraFiles) {
-        const url = await uploadFile(file, `${category}/${slug}/${file.name}`);
+        const compressed = await compressImage(file);
+        const url = await uploadFile(compressed, `${category}/${slug}/${file.name}`);
         extraUrls.push(url);
       }
 
@@ -152,9 +172,17 @@ export default function AdminPage() {
         <span style={{ fontFamily: "var(--font-mono)", color: "#111111" }} className="text-lg sm:text-3xl tracking-wide font-medium">
           Drian Clemence Esquejo
         </span>
-        <button onClick={() => router.push("/")} className="sm:absolute sm:right-10 text-[11px] tracking-[0.14em] uppercase transition-colors duration-200" style={{ color: "#0157ba" }}>
-          ← Home
-        </button>
+        <div className="sm:absolute sm:right-10 flex items-center gap-4">
+  <button onClick={() => router.push("/admin/works")} className="text-[11px] tracking-[0.14em] uppercase transition-colors duration-200" style={{ color: "#0157ba" }}>
+    Manage Works
+  </button>
+  <button onClick={() => router.push("/")} className="text-[11px] tracking-[0.14em] uppercase text-gray-400 hover:text-[#111] transition-colors duration-200">
+    ← Home
+  </button>
+  <button onClick={handleLogout} className="text-[11px] tracking-[0.14em] uppercase text-gray-400 hover:text-red-400 transition-colors duration-200">
+    Logout
+  </button>
+</div>
       </nav>
 
       <div className="max-w-2xl mx-auto w-full px-6 py-10">
