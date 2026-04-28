@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams  } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
 const PAGE_SIZE = 6;
@@ -29,13 +29,17 @@ export default function CategoryPage() {
   const params = useParams();
   const category = (params?.category as string) ?? "";
   const router = useRouter();
+  const searchParams = useSearchParams();
+
 
   const [works, setWorks] = useState<Work[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [showFab, setShowFab] = useState(false);
-  const [activeFilter, setActiveFilter] = useState("All");
+const [activeFilter, setActiveFilter] = useState(
+  searchParams.get("filter") ?? "All"
+);
   const pageRef = useRef(0);
 
   const label = category

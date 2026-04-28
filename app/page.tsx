@@ -91,14 +91,14 @@ fetchData();
   <span style={{ fontFamily: "var(--font-bricolage)", color: "white" }} className="text-2xl sm:text-5xl tracking-wide font-semibold text-center">
     Drian Esquejo
   </span>
-  <a href="mailto:hello@drianclemence.com" className="absolute right-10 flex items-center gap-2 transition-colors duration-200 hover:opacity-70" style={{ color: "white" }}>
-    <Mail size={30} />
+  <a href="mailto:georgedanielcavas@gmai.com" className="absolute right-10 flex items-center gap-2 transition-colors duration-200 hover:opacity-70" style={{ color: "white" }}>
+    <Mail size={28} />
   </a>
 </nav>
 
       <div className="max-w-4xl mx-auto w-full flex flex-col flex-1 px-6 py-10">
 
-        <div className="pt-5 pb-8">
+        <div className="pt-2 pb-4 sm:pt-0 sm:pb-8 ">
           <p className="text-[11px] tracking-[0.2em] uppercase mb-3" style={{ fontFamily: "var(--font-mono)", color: "#111111" }}>
             Graphic Designer — Manila
           </p>
@@ -131,9 +131,6 @@ fetchData();
                 <div className="relative z-10 bg-white">
                   <div className="h-1 w-full" style={{ backgroundColor: cat.accent }} />
                   <div className="p-6">
-                    <p className="text-[10px] tracking-[0.18em] uppercase text-gray-400 mb-1">
-                      Series {cat.series}
-                    </p>
                     <p className="text-2xl sm:text-3xl font-semibold text-[#111] mb-1">
                       {cat.label}
                     </p>
@@ -144,11 +141,15 @@ fetchData();
                       <div className="flex flex-wrap gap-1 mt-3">
                         {subcats[cat.slug].map((sub) => (
                           <span
-                            key={sub}
-                            className="text-[9px] tracking-[0.12em] uppercase px-2 py-1 rounded-full border border-gray-200 text-gray-400"
-                          >
-                            {sub}
-                          </span>
+                          key={sub}
+                          onClick={(e) => {
+                            e.stopPropagation(); 
+                            router.push(`/${cat.slug}?filter=${encodeURIComponent(sub)}`);
+                          }}
+                          className="text-[9px] tracking-[0.12em] uppercase px-2 py-1 rounded-full border border-gray-200 text-gray-400 hover:border-[#0157ba] hover:text-[#0157ba] transition-all duration-200 cursor-pointer"
+                        >
+                          {sub}
+                        </span>
                         ))}
                       </div>
                     )}
