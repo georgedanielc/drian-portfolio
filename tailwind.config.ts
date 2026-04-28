@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 const config: Config = {
@@ -10,6 +11,7 @@ const config: Config = {
   fontFamily: {
     mono: ["var(--font-mono)", "monospace"],
     poppins: ["var(--font-poppins)", "sans-serif"],
+    bricolage: ["var(--font-bricolage)", "sans-serif"],
   },
 },
   },
